@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizador de Dados</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f4f4f4;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #007BFF;
+      color: white;
+    }
+    #relatorio {
+      margin-top: 20px;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 10px 0 0;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h2>📊 Dados da Planilha</h2>
+  <table id="dados">
+    <tr><td>Carregando dados...</td></tr>
+  </table>
+
+
+  <div id="relatorio">
+    <h3>🧾 Relatório</h3>
+    <p>Os dados ainda não foram enviados.</p>
+  </div>
+
+
+  <button id="btnGemini">Gerar Insights com Gemini</button>
+  <button id="btnRelatorio">Gerar Relatório Local</button>
+
+
+  <script>
+    let dadosRecebidos = [];
+
+
+    // === BUSCA OS DADOS DA PLANILHA ===
+    function fetchData() {
+      const scriptUrl = 'https://script.google.com/macros/s/AKfycbz3ZqxsuRmERlXO_hZ-ZWa8kiCrqsDZlsOVxCteeo5nATki73jsfUGqsGo53BCFhTnLhw/exec';
+      fetch(scriptUrl)
+        .then(response => response.json())
+        .then(data => {
+          console.log("✅ Dados recebidos:", data);
+          dadosRecebidos = data;
+          displayData(data);
+        })
+        .catch(error => {
+          console.error('❌ Erro ao obter dados:', error);
+          document.getElementById("dados").innerHTML =
+            "<tr><td colspan='100%'>Erro ao carregar os dados.</td></tr>";
+        });
+    }
+
+
+    // === EXIBE OS DADOS NA TABELA ===
+    function displayData(data) {
+      const tabela = document.getElementById("dados");
+
+
+      if (!data || data.length === 0) {
+        tabela.innerHTML = "<tr><td colspan='100%'>Nenhum dado encontrado.</td></tr>";
+        return;
+      }
+
+
+      let html = "<tr>";
+      Object.keys(data[0]).forEach(cab => {
+        html += `<th>${cab}</th>`;
+      });
+      html += "</tr>";
+
+
+      data.forEach(row => {
+        html += "<tr>";
+        Object.values(row).forEach(valor => {
+          html += `<td>${valor}</td>`;
+        });
+        html += "</tr>";
+      });
+
+
+      tabela.innerHTML = html;
+    }
+
+
+    // === GERA INSIGHTS CURTOS COM O GEMINI ===
+    async function sendDataToGemini() {
+      if (!dadosRecebidos.length) {
+        alert("Nenhum dado disponível para enviar.");
+        return;
+      }
+
+
+      const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDJLuHCpIDVOzXIzeLVg9OOp2vF2PnSlWg";
+      let textData = "Aqui estão os dados de sensores:\n";
+      dadosRecebidos.forEach(row => {
+        textData += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}, Hora: ${row.Timestamp}\n`;
+      });
+
+
+      const prompt =
+        "Analise os dados abaixo e gere insights curtos e objetivos em português. " +
+        "Responda com frases breves, sem explicações longas. " +
+        "Exemplo: 'Sensor 1 estável', 'Temperatura em leve alta', 'Variação detectada no sensor 3'.\n\n" +
+        textData;
+
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }]
+      };
+
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+
+        const result = await response.json();
+        console.log("✅ Resposta do Gemini:", result);
+
+
+        const insights = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Sem resposta do Gemini.";
+
+
+        // Mostra e fala o texto
+        document.getElementById("relatorio").innerHTML =
+          `<h3>💡 Insights do Gemini</h3><pre>${insights}</pre>`;
+
+
+        speakText(insights);
+
+
+      } catch (err) {
+        console.error("❌ Erro ao enviar dados para o Gemini:", err);
+        alert("Erro ao enviar para o Gemini. Veja o console.");
+      }
+    }
+
+
+    // === GERA RELATÓRIO LOCAL (SEM GEMINI) ===
+    function generateReport() {
+      const reportContainer = document.getElementById("relatorio");
+
+
+      if (!dadosRecebidos.length) {
+        reportContainer.innerHTML = "<p>Nenhum dado disponível para gerar o relatório.</p>";
+        return;
+      }
+
+
+      let reportText = "Relatório Local:\n\n";
+      dadosRecebidos.forEach(row => {
+        reportText += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}\n`;
+      });
+
+
+      reportContainer.innerHTML = `<h3>🧾 Relatório Gerado</h3><pre>${reportText}</pre>`;
+      speakText("Relatório gerado com sucesso!");
+    }
+
+
+    // === FALA O TEXTO USANDO O NAVEGADOR ===
+    function speakText(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "pt-BR";
+      utterance.rate = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+
+
+    // === EVENTOS DOS BOTÕES ===
+    document.getElementById("btnGemini").addEventListener("click", sendDataToGemini);
+    document.getElementById("btnRelatorio").addEventListener("click", generateReport);
+
+
+    // === CARREGA OS DADOS AO ABRIR A PÁGINA ===
+    window.onload = fetchData;
+  </script>
+</body>
+</html>
