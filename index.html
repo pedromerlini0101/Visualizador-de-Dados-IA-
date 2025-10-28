@@ -24,10 +24,9 @@
       background: #007BFF;
       color: white;
     }
-    #relatorio {
-      margin-top: 20px;
+    .tab-content {
       background: #fff;
-      padding: 10px;
+      padding: 15px;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
@@ -43,28 +42,70 @@
     button:hover {
       background-color: #45a049;
     }
+    canvas {
+      width: 100% !important;
+      max-width: 600px;
+      margin: 20px auto;
+      display: block;
+    }
+    .tabs {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 20px;
+    }
+    .tab {
+      background: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      margin-right: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .tab:hover {
+      background: #0056b3;
+    }
+    .tab.active {
+      background: #0056b3;
+      color: #f4f4f4;
+    }
   </style>
 </head>
 <body>
-  <h2>📊 Dados da Planilha</h2>
-  <table id="dados">
-    <tr><td>Carregando dados...</td></tr>
-  </table>
+  <h2>📊 Visualizador de Dados</h2>
 
+  <div class="tabs">
+    <div id="tab-tabela" class="tab active">Tabela de Dados</div>
+    <div id="tab-relatorio" class="tab">Relatório</div>
+    <div id="tab-graficos" class="tab">Gráficos</div>
+  </div>
 
-  <div id="relatorio">
+  <!-- TABELA -->
+  <div id="tabela" class="tab-content">
+    <table id="dados">
+      <tr><td>Carregando dados...</td></tr>
+    </table>
+  </div>
+
+  <!-- RELATÓRIO -->
+  <div id="relatorio" class="tab-content" style="display:none;">
     <h3>🧾 Relatório</h3>
     <p>Os dados ainda não foram enviados.</p>
   </div>
 
+  <!-- GRÁFICOS -->
+  <div id="graficos" class="tab-content" style="display:none;">
+    <h3>📈 Gráficos Gerados</h3>
+    <canvas id="grafico"></canvas>
+  </div>
 
   <button id="btnGemini">Gerar Insights com Gemini</button>
   <button id="btnRelatorio">Gerar Relatório Local</button>
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
   <script>
     let dadosRecebidos = [];
-
 
     // === BUSCA OS DADOS DA PLANILHA ===
     function fetchData() {
@@ -75,6 +116,7 @@
           console.log("✅ Dados recebidos:", data);
           dadosRecebidos = data;
           displayData(data);
+          updateGraph(data);
         })
         .catch(error => {
           console.error('❌ Erro ao obter dados:', error);
@@ -83,24 +125,20 @@
         });
     }
 
-
     // === EXIBE OS DADOS NA TABELA ===
     function displayData(data) {
       const tabela = document.getElementById("dados");
-
 
       if (!data || data.length === 0) {
         tabela.innerHTML = "<tr><td colspan='100%'>Nenhum dado encontrado.</td></tr>";
         return;
       }
 
-
       let html = "<tr>";
       Object.keys(data[0]).forEach(cab => {
         html += `<th>${cab}</th>`;
       });
       html += "</tr>";
-
 
       data.forEach(row => {
         html += "<tr>";
@@ -110,18 +148,43 @@
         html += "</tr>";
       });
 
-
       tabela.innerHTML = html;
     }
 
+    // === ATUALIZA O GRÁFICO COM OS DADOS ===
+    function updateGraph(data) {
+      if (!data || data.length === 0) return;
 
-    // === GERA INSIGHTS CURTOS COM O GEMINI ===
+      const labels = data.map(row => row.Sensor);
+      const valores = data.map(row => parseFloat(row.Valor));
+
+      const ctx = document.getElementById('grafico').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Valores dos Sensores',
+            data: valores,
+            borderColor: '#007BFF',
+            backgroundColor: 'rgba(0,123,255,0.2)',
+            borderWidth: 2,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // === GERA INSIGHTS CURTOS COM GEMINI ===
     async function sendDataToGemini() {
       if (!dadosRecebidos.length) {
         alert("Nenhum dado disponível para enviar.");
         return;
       }
-
 
       const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDJLuHCpIDVOzXIzeLVg9OOp2vF2PnSlWg";
       let textData = "Aqui estão os dados de sensores:\n";
@@ -129,18 +192,13 @@
         textData += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}, Hora: ${row.Timestamp}\n`;
       });
 
-
       const prompt =
         "Analise os dados abaixo e gere insights curtos e objetivos em português. " +
         "Responda com frases breves, sem explicações longas. " +
         "Exemplo: 'Sensor 1 estável', 'Temperatura em leve alta', 'Variação detectada no sensor 3'.\n\n" +
         textData;
 
-
-      const payload = {
-        contents: [{ parts: [{ text: prompt }] }]
-      };
-
+      const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
       try {
         const response = await fetch(apiUrl, {
@@ -149,52 +207,42 @@
           body: JSON.stringify(payload)
         });
 
-
         const result = await response.json();
         console.log("✅ Resposta do Gemini:", result);
 
-
         const insights = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Sem resposta do Gemini.";
 
-
-        // Mostra e fala o texto
         document.getElementById("relatorio").innerHTML =
           `<h3>💡 Insights do Gemini</h3><pre>${insights}</pre>`;
 
-
         speakText(insights);
-
-
+        setActiveTab("tab-relatorio");
       } catch (err) {
         console.error("❌ Erro ao enviar dados para o Gemini:", err);
         alert("Erro ao enviar para o Gemini. Veja o console.");
       }
     }
 
-
-    // === GERA RELATÓRIO LOCAL (SEM GEMINI) ===
+    // === GERA RELATÓRIO LOCAL ===
     function generateReport() {
       const reportContainer = document.getElementById("relatorio");
-
 
       if (!dadosRecebidos.length) {
         reportContainer.innerHTML = "<p>Nenhum dado disponível para gerar o relatório.</p>";
         return;
       }
 
-
       let reportText = "Relatório Local:\n\n";
       dadosRecebidos.forEach(row => {
         reportText += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}\n`;
       });
 
-
       reportContainer.innerHTML = `<h3>🧾 Relatório Gerado</h3><pre>${reportText}</pre>`;
       speakText("Relatório gerado com sucesso!");
+      setActiveTab("tab-relatorio");
     }
 
-
-    // === FALA O TEXTO USANDO O NAVEGADOR ===
+    // === FALA O TEXTO ===
     function speakText(text) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "pt-BR";
@@ -202,13 +250,33 @@
       window.speechSynthesis.speak(utterance);
     }
 
-
-    // === EVENTOS DOS BOTÕES ===
+    // === EVENTOS ===
     document.getElementById("btnGemini").addEventListener("click", sendDataToGemini);
     document.getElementById("btnRelatorio").addEventListener("click", generateReport);
 
+    // === ABAS ===
+    document.getElementById("tab-tabela").addEventListener("click", function() { setActiveTab("tab-tabela"); });
+    document.getElementById("tab-relatorio").addEventListener("click", function() { setActiveTab("tab-relatorio"); });
+    document.getElementById("tab-graficos").addEventListener("click", function() { setActiveTab("tab-graficos"); });
 
-    // === CARREGA OS DADOS AO ABRIR A PÁGINA ===
+    function setActiveTab(tabId) {
+      const tabs = document.querySelectorAll(".tab");
+      tabs.forEach(tab => tab.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+
+      const contents = document.querySelectorAll(".tab-content");
+      contents.forEach(content => content.style.display = "none");
+
+      let contentId;
+      if (tabId === "tab-tabela") contentId = "tabela";
+      else if (tabId === "tab-relatorio") contentId = "relatorio";
+      else if (tabId === "tab-graficos") contentId = "graficos";
+
+      const activeContent = document.getElementById(contentId);
+      if (activeContent) activeContent.style.display = "block";
+    }
+
+    // === INÍCIO ===
     window.onload = fetchData;
   </script>
 </body>
