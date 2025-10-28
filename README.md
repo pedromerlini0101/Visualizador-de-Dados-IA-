@@ -4,7 +4,7 @@
 
 <h1>Funcionamento do site</h1>
 <p>
-  Um ESP32 conectado a um potenciômetro(ou a um sensor) manda os dados obtidos pra uma planilha do Google Sheets,
+  Um <a href="https://pt.wikipedia.org/wiki/ESP32">ESP32</a> conectado a um potenciômetro(ou a um sensor) manda os dados obtidos pra uma planilha do Google Sheets,
   esses dados são visualizados através do site, hospedado no próprio Google Sheets, e um pequeno insight é gerado com
   a IA do Google Gemini sobre os dados.
 </p>
