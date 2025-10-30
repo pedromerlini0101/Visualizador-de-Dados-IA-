@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -24,12 +25,7 @@
       background: #007BFF;
       color: white;
     }
-    .tab-content {
-      background: #fff;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+    
     button {
       background-color: #4CAF50;
       color: white;
@@ -67,6 +63,33 @@
     .tab.active {
       background: #0056b3;
       color: #f4f4f4;
+    }
+
+    .tab-content {
+        background: #fff;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        max-height: 70vh; /* limita altura do conteúdo */
+        overflow-y: auto; /* adiciona rolagem vertical */
+        word-wrap: break-word; /* quebra palavras longas */
+    }
+    
+    pre {
+        white-space: pre-wrap; /* permite quebra de linha dentro de <pre> */
+        word-wrap: break-word; /* quebra palavras muito grandes */
+        font-family: "Courier New", monospace;
+        background: #f8f8f8;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    pre {
+        background: #f0f0f0;
+        padding: 12px;
+        border-left: 4px solid #007BFF;
+        font-size: 15px;
+        line-height: 1.5;
     }
   </style>
 </head>
@@ -192,11 +215,13 @@
         textData += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}, Hora: ${row.Timestamp}\n`;
       });
 
-      const prompt =
+      /*const prompt =
         "Analise os dados abaixo e gere insights curtos e objetivos em português. " +
         "Responda com frases breves, sem explicações longas. " +
         "Exemplo: 'Sensor 1 estável', 'Temperatura em leve alta', 'Variação detectada no sensor 3'.\n\n" +
         textData;
+    */
+      const prompt = "(Responda sem markdown, apenas texto)Gere um relatório bem detalhado, porém sucinto, sobre esses dados com insights úteis: " + textData;
 
       const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
@@ -246,7 +271,7 @@
     function speakText(text) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "pt-BR";
-      utterance.rate = 1.0;
+      utterance.rate = 2.0;
       window.speechSynthesis.speak(utterance);
     }
 
