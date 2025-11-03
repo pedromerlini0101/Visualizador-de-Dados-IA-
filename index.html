@@ -6,47 +6,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visualizador de Dados</title>
   <style>
+    :root {
+      --primary-color: #007BFF;
+      --secondary-color: #4CAF50;
+      --danger-color: #dc3545;
+      --light-color: #f4f4f4;
+      --dark-color: #333;
+      --border-radius: 5px;
+      --shadow: 0 6px 20px rgba(30,30,60,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      background: var(--light-color);
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--primary-color);
     }
 
     table {
       border-collapse: collapse;
       width: 100%;
       background: white;
+      margin-bottom: 20px;
     }
 
     th,
     td {
       border: 1px solid #ccc;
-      padding: 8px;
+      padding: 10px;
       text-align: left;
     }
 
     th {
-      background: #007BFF;
+      background: var(--primary-color);
       color: white;
+      position: sticky;
+      top: 0;
     }
 
     button {
-      background-color: #4CAF50;
+      background-color: var(--secondary-color);
       color: white;
       padding: 10px 20px;
       border: none;
-      border-radius: 5px;
+      border-radius: var(--border-radius);
       cursor: pointer;
       margin: 10px 10px 0 0;
+      transition: background-color 0.3s;
+      font-size: 14px;
     }
 
     button:hover {
-      background-color: #45a049;
+      opacity: 0.9;
+    }
+
+    button.secondary {
+      background-color: var(--primary-color);
+    }
+
+    button.danger {
+      background-color: var(--danger-color);
     }
 
     canvas {
       width: 100% !important;
-      max-width: 600px;
+      max-width: 100%;
       margin: 20px auto;
       display: block;
     }
@@ -55,15 +99,18 @@
       display: flex;
       justify-content: flex-start;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .tab {
-      background: #007BFF;
+      background: var(--primary-color);
       color: white;
       padding: 10px 20px;
       margin-right: 5px;
       cursor: pointer;
-      border-radius: 5px;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      transition: background-color 0.3s;
+      margin-bottom: 5px;
     }
 
     .tab:hover {
@@ -72,14 +119,13 @@
 
     .tab.active {
       background: #0056b3;
-      color: #f4f4f4;
     }
 
     .tab-content {
       background: #fff;
       padding: 15px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
       max-height: 70vh;
       overflow-y: auto;
       word-wrap: break-word;
@@ -88,11 +134,172 @@
     pre {
       background: #f0f0f0;
       padding: 12px;
-      border-left: 4px solid #007BFF;
+      border-left: 4px solid var(--primary-color);
       font-size: 15px;
       line-height: 1.5;
       white-space: pre-wrap;
       word-wrap: break-word;
+      border-radius: var(--border-radius);
+      overflow-x: auto;
+    }
+
+    /* === FORM EMAIL === */
+    .email-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 560px;
+      margin: 20px auto;
+    }
+    
+    .email-card h3 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--danger-color);
+    }
+    
+    input[type="email"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    input[type="email"]:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    }
+    
+    input[type="email"].error,
+    input[type="text"].error,
+    textarea.error {
+      border-color: var(--danger-color);
+    }
+    
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      font-family: inherit;
+    }
+    
+    .error-message {
+      color: var(--danger-color);
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    .buttons-container {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .email-button {
+      flex: 1;
+      min-width: 160px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .email-button:active {
+      transform: scale(0.98);
+    }
+    
+    .btn-gmail {
+      background: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-gmail:hover {
+      background: #1669d6;
+    }
+    
+    .btn-mailto {
+      background: var(--secondary-color);
+      color: white;
+    }
+    
+    .btn-mailto:hover {
+      background: #45a049;
+    }
+    
+    .note {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #5f6368;
+      line-height: 1.5;
+      padding: 12px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+    
+    .status-message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      display: none;
+    }
+    
+    .status-message.show {
+      display: block;
+    }
+    
+    .status-message.error {
+      background-color: #fce8e6;
+      color: var(--danger-color);
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status-message.success {
+      background-color: #e6f4ea;
+      color: var(--secondary-color);
+      border: 1px solid #c3e6cb;
+    }
+    
+    .icon {
+      width: 18px;
+      height: 18px;
     }
 
     /* === LOADER === */
@@ -114,7 +321,7 @@
 
     .spinner {
       border: 6px solid #f3f3f3;
-      border-top: 6px solid #007BFF;
+      border-top: 6px solid var(--primary-color);
       border-radius: 50%;
       width: 60px;
       height: 60px;
@@ -131,42 +338,166 @@
         transform: rotate(360deg);
       }
     }
+
+    /* === ALERTS === */
+    .alert {
+      padding: 10px 15px;
+      border-radius: var(--border-radius);
+      margin: 10px 0;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      .tabs {
+        flex-direction: column;
+      }
+
+      .tab {
+        margin-right: 0;
+        margin-bottom: 2px;
+        border-radius: var(--border-radius);
+      }
+
+      .tab-content {
+        border-radius: var(--border-radius);
+      }
+
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px 5px;
+      }
+
+      button {
+        width: 100%;
+        margin: 5px 0;
+      }
+      
+      .email-card {
+        padding: 16px;
+        margin: 12px;
+      }
+      
+      .buttons-container {
+        flex-direction: column;
+      }
+      
+      .email-button {
+        min-width: auto;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <h2>📊 Visualizador de Dados</h2>
+  <div class="container">
+    <h2>📊 Visualizador de Dados</h2>
 
-  <div class="tabs">
-    <div id="tab-tabela" class="tab active">Tabela de Dados</div>
-    <div id="tab-relatorio" class="tab">Relatório</div>
-    <div id="tab-graficos" class="tab">Gráficos</div>
+    <div class="tabs">
+      <div id="tab-tabela" class="tab active">Tabela de Dados</div>
+      <div id="tab-relatorio" class="tab">Relatório</div>
+      <div id="tab-graficos" class="tab">Gráficos</div>
+      <div id="tab-email" class="tab">Enviar E-mail</div>
+    </div>
+
+    <!-- TABELA -->
+    <div id="tabela" class="tab-content">
+      <table id="dados">
+        <tr>
+          <td>Carregando dados...</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- RELATÓRIO -->
+    <div id="relatorio" class="tab-content" style="display:none;">
+      <h3>🧾 Relatório</h3>
+      <p>Os dados ainda não foram enviados.</p>
+    </div>
+
+    <!-- GRÁFICOS -->
+    <div id="graficos" class="tab-content" style="display:none;">
+      <h3>📈 Gráficos Gerados</h3>
+      <canvas id="grafico"></canvas>
+    </div>
+
+    <!-- FORMULÁRIO DE E-MAIL -->
+    <div id="email" class="tab-content" style="display:none;">
+      <div class="email-card">
+        <h3>Enviar Relatório por E-mail</h3>
+        
+        <form id="emailForm" novalidate>
+          <div class="form-group">
+            <label for="to" class="required">Para (e-mail)</label>
+            <input id="to" type="email" placeholder="ex: pessoa@exemplo.com" required aria-required="true" />
+            <div id="to-error" class="error-message" role="alert">Por favor, informe um e-mail válido.</div>
+          </div>
+          
+          <div class="form-group">
+            <label for="subject">Assunto</label>
+            <input id="subject" type="text" placeholder="Assunto do e-mail" value="Relatório de Dados dos Sensores" />
+          </div>
+          
+          <div class="form-group">
+            <label for="body">Mensagem</label>
+            <textarea id="body" placeholder="Escreva sua mensagem aqui..."></textarea>
+          </div>
+          
+          <div class="buttons-container">
+            <button type="button" class="email-button btn-gmail" id="openGmail">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+              </svg>
+              Enviar pelo Gmail
+            </button>
+            <button type="button" class="email-button btn-mailto" id="openMailto">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+              </svg>
+              Abrir com mailto
+            </button>
+          </div>
+          
+          <div id="status-message" class="status-message" role="alert" aria-live="polite"></div>
+        </form>
+        
+        <div class="note">
+          <p><strong>Observação:</strong> este formulário <strong>não</strong> envia o e-mail automaticamente pelo servidor.</p>
+          <p>O botão <strong>Enviar pelo Gmail</strong> abre a janela de composição do Gmail no navegador (se você estiver logado).</p>
+          <p>O botão de fallback usa o esquema <code>mailto:</code> para abrir o cliente de e-mail padrão do sistema.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="btnGemini">Gerar Insights com Gemini</button>
+      <button id="btnRelatorio">Gerar Relatório Local</button>
+      <button id="btnTocarFala" class="secondary">🔊 Tocar Voz</button>
+      <button id="btnPararFala" class="danger" style="display:none;">⏹️ Parar Voz</button>
+    </div>
   </div>
-
-  <!-- TABELA -->
-  <div id="tabela" class="tab-content">
-    <table id="dados">
-      <tr>
-        <td>Carregando dados...</td>
-      </tr>
-    </table>
-  </div>
-
-  <!-- RELATÓRIO -->
-  <div id="relatorio" class="tab-content" style="display:none;">
-    <h3>🧾 Relatório</h3>
-    <p>Os dados ainda não foram enviados.</p>
-  </div>
-
-  <!-- GRÁFICOS -->
-  <div id="graficos" class="tab-content" style="display:none;">
-    <h3>📈 Gráficos Gerados</h3>
-    <canvas id="grafico"></canvas>
-  </div>
-
-  <button id="btnGemini">Gerar Insights com Gemini</button>
-  <button id="btnRelatorio">Gerar Relatório Local</button>
-  <button id="btnPararFala" style="background-color:#d9534f;">🔇 Parar Fala</button>
 
   <!-- === LOADER === -->
   <div id="loader">
@@ -179,8 +510,11 @@
 
   <script>
     let dadosRecebidos = [];
+    let relatorioTexto = "";
+    let utterance = null;
+    let isSpeaking = false;
 
-    // === MOSTRA E ESCONDE LOADER ===
+    // === LOADER ===
     function showLoader(text = "Carregando...") {
       document.getElementById("loader-text").innerText = text;
       document.getElementById("loader").style.display = "flex";
@@ -190,70 +524,60 @@
       document.getElementById("loader").style.display = "none";
     }
 
-    // === BUSCA OS DADOS DA PLANILHA ===
+    // === BUSCA DADOS ===
     function fetchData() {
-      showLoader("Buscando dados da planilha...");
+      showLoader("Buscando dados...");
       const scriptUrl = 'https://script.google.com/macros/s/AKfycbz3ZqxsuRmERlXO_hZ-ZWa8kiCrqsDZlsOVxCteeo5nATki73jsfUGqsGo53BCFhTnLhw/exec';
       fetch(scriptUrl)
         .then(response => response.json())
         .then(data => {
-          console.log("✅ Dados recebidos:", data);
           dadosRecebidos = data;
           displayData(data);
           updateGraph(data);
         })
-        .catch(error => {
-          console.error('❌ Erro ao obter dados:', error);
-          document.getElementById("dados").innerHTML =
-            "<tr><td colspan='100%'>Erro ao carregar os dados.</td></tr>";
+        .catch(err => {
+          console.error(err);
+          document.getElementById("dados").innerHTML = "<tr><td colspan='100%'>Erro ao carregar dados.</td></tr>";
+          showAlert("Erro ao carregar dados. Verifique sua conexão.", "danger");
         })
         .finally(hideLoader);
     }
 
-    // === EXIBE OS DADOS NA TABELA ===
     function displayData(data) {
       const tabela = document.getElementById("dados");
-
-      if (!data || data.length === 0) {
+      if (!data.length) {
         tabela.innerHTML = "<tr><td colspan='100%'>Nenhum dado encontrado.</td></tr>";
         return;
       }
 
       let html = "<tr>";
-      Object.keys(data[0]).forEach(cab => {
-        html += `<th>${cab}</th>`;
-      });
+      Object.keys(data[0]).forEach(c => html += `<th>${c}</th>`);
       html += "</tr>";
 
-      data.forEach(row => {
+      data.forEach(r => {
         html += "<tr>";
-        Object.values(row).forEach(valor => {
-          html += `<td>${valor}</td>`;
-        });
+        Object.values(r).forEach(v => html += `<td>${v}</td>`);
         html += "</tr>";
       });
 
       tabela.innerHTML = html;
     }
 
-    // === ATUALIZA O GRÁFICO COM OS DADOS ===
     function updateGraph(data) {
-      if (!data || data.length === 0) return;
-
+      if (!data.length) return;
       const container = document.getElementById("graficos");
       container.innerHTML = "<h3>📈 Gráficos Gerados</h3>";
 
       const sensores = {};
       data.forEach(row => {
-        const sensor = row.Sensor;
-        if (!sensores[sensor]) sensores[sensor] = [];
-        sensores[sensor].push(row);
+        const s = row.Sensor;
+        if (!sensores[s]) sensores[s] = [];
+        sensores[s].push(row);
       });
 
       Object.keys(sensores).forEach(sensor => {
         const registros = sensores[sensor];
         const canvas = document.createElement("canvas");
-        canvas.id = `grafico-${sensor}`;
         container.appendChild(canvas);
 
         const labels = registros.map(r => r.Timestamp);
@@ -262,9 +586,9 @@
         new Chart(canvas.getContext("2d"), {
           type: "line",
           data: {
-            labels: labels,
+            labels,
             datasets: [{
-              label: `Valores do Sensor: ${sensor}`,
+              label: `Sensor: ${sensor}`,
               data: valores,
               borderColor: "#007BFF",
               backgroundColor: "rgba(0,123,255,0.2)",
@@ -274,126 +598,336 @@
           },
           options: {
             responsive: true,
-            plugins: {
-              title: {
-                display: true,
-                text: `Sensor: ${sensor}`,
-                font: { size: 16 }
-              }
+            plugins: { 
+              title: { display: true, text: `Sensor: ${sensor}` },
+              legend: { position: 'bottom' }
             },
-            scales: {
-              x: { title: { display: true, text: "Timestamp" } },
-              y: { beginAtZero: true, title: { display: true, text: "Valor" } }
+            scales: { 
+              x: { 
+                title: { display: true, text: "Timestamp" },
+                ticks: {
+                  maxTicksLimit: 10
+                }
+              }, 
+              y: { 
+                beginAtZero: true,
+                title: { display: true, text: "Valor" }
+              } 
             }
           }
         });
       });
     }
 
-    // === GERA INSIGHTS CURTOS COM GEMINI ===
+    // === GEMINI ===
     async function sendDataToGemini() {
       if (!dadosRecebidos.length) {
-        alert("Nenhum dado disponível para enviar.");
+        showAlert("Nenhum dado disponível.", "danger");
         return;
       }
-
       showLoader("Gerando insights com Gemini...");
 
       const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDJLuHCpIDVOzXIzeLVg9OOp2vF2PnSlWg";
-      let textData = "Aqui estão os dados de sensores:\n";
-      dadosRecebidos.forEach(row => {
-        textData += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}, Hora: ${row.Timestamp}\n`;
-      });
+      let textData = dadosRecebidos.map(r =>
+        `Sensor: ${r.Sensor}, Valor: ${r.Valor}, Nota: ${r.Nota}, Hora: ${r.Timestamp}`).join("\n");
 
-      const prompt = "(Responda sem markdown, apenas texto) Gere um relatório bem detalhado, porém sucinto, sobre esses dados com insights úteis: " + textData;
+      const prompt = "(Responda sem markdown, apenas texto) Gere um relatório detalhado e útil sobre os dados: " + textData;
       const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
       try {
-        const response = await fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
+        const response = await fetch(apiUrl, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         const result = await response.json();
-        console.log("✅ Resposta do Gemini:", result);
+        const insights = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Sem resposta.";
 
-        const insights = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Sem resposta do Gemini.";
-
-        document.getElementById("relatorio").innerHTML =
-          `<h3>💡 Insights do Gemini</h3><pre>${insights}</pre>`;
-
-        speakText(insights);
-        setActiveTab("tab-relatorio");
+        mostrarRelatorio(insights);
+        showAlert("Insights gerados com sucesso!", "success");
       } catch (err) {
-        console.error("❌ Erro ao enviar dados para o Gemini:", err);
-        alert("Erro ao enviar para o Gemini. Veja o console.");
+        console.error(err);
+        showAlert("Erro ao enviar ao Gemini. Verifique sua conexão.", "danger");
       } finally {
         hideLoader();
       }
     }
 
-    // === GERA RELATÓRIO LOCAL ===
+    // === RELATÓRIO LOCAL ===
     function generateReport() {
-      const reportContainer = document.getElementById("relatorio");
-
       if (!dadosRecebidos.length) {
-        reportContainer.innerHTML = "<p>Nenhum dado disponível para gerar o relatório.</p>";
+        showAlert("Nenhum dado disponível.", "danger");
         return;
       }
-
-      let reportText = "Relatório Local:\n\n";
-      dadosRecebidos.forEach(row => {
-        reportText += `Sensor: ${row.Sensor}, Valor: ${row.Valor}, Nota: ${row.Nota}\n`;
+      
+      let report = "RELATÓRIO DE DADOS DOS SENSORES\n\n";
+      report += `Total de registros: ${dadosRecebidos.length}\n\n`;
+      
+      // Agrupar por sensor
+      const sensores = {};
+      dadosRecebidos.forEach(r => {
+        if (!sensores[r.Sensor]) sensores[r.Sensor] = [];
+        sensores[r.Sensor].push(r);
       });
-
-      reportContainer.innerHTML = `<h3>🧾 Relatório Gerado</h3><pre>${reportText}</pre>`;
-      speakText("Relatório gerado com sucesso!");
-      setActiveTab("tab-relatorio");
+      
+      Object.keys(sensores).forEach(sensor => {
+        const registros = sensores[sensor];
+        const valores = registros.map(r => parseFloat(r.Valor));
+        const media = valores.reduce((a, b) => a + b, 0) / valores.length;
+        const max = Math.max(...valores);
+        const min = Math.min(...valores);
+        
+        report += `SENSOR: ${sensor}\n`;
+        report += `  - Total de leituras: ${registros.length}\n`;
+        report += `  - Valor médio: ${media.toFixed(2)}\n`;
+        report += `  - Valor máximo: ${max}\n`;
+        report += `  - Valor mínimo: ${min}\n\n`;
+      });
+      
+      mostrarRelatorio(report);
+      showAlert("Relatório local gerado com sucesso!", "success");
     }
 
-    // === FALA O TEXTO ===
-    let utterance = null;
-    function speakText(text) {
-      window.speechSynthesis.cancel(); // interrompe fala anterior
-      utterance = new SpeechSynthesisUtterance(text);
+    // === MOSTRA RELATÓRIO ===
+    function mostrarRelatorio(texto) {
+      relatorioTexto = texto;
+      const relatorioDiv = document.getElementById("relatorio");
+      relatorioDiv.innerHTML = `
+        <h3>🧾 Relatório Gerado</h3>
+        <button id="btnEnviarEmail" class="secondary">✉️ Enviar por E-mail</button>
+        <pre>${texto}</pre>
+      `;
+      setActiveTab("tab-relatorio");
+
+      // Preenche automaticamente o campo de mensagem no formulário de e-mail
+      document.getElementById("body").value = texto;
+
+      // Ao clicar, vai para a aba de e-mail
+      document.getElementById("btnEnviarEmail").addEventListener("click", () => {
+        setActiveTab("tab-email");
+      });
+    }
+
+    // === FORMULÁRIO DE E-MAIL ===
+    // Elementos DOM
+    const emailForm = document.getElementById('emailForm');
+    const toInput = document.getElementById('to');
+    const subjectInput = document.getElementById('subject');
+    const bodyInput = document.getElementById('body');
+    const toError = document.getElementById('to-error');
+    const statusMessage = document.getElementById('status-message');
+    const openGmailBtn = document.getElementById('openGmail');
+    const openMailtoBtn = document.getElementById('openMailto');
+    
+    // Validação de e-mail mais robusta
+    function isValidEmail(email) {
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      return emailRegex.test(email);
+    }
+    
+    // Exibir mensagem de status
+    function showStatus(message, type) {
+      statusMessage.textContent = message;
+      statusMessage.className = 'status-message show ' + type;
+      
+      // Auto-ocultar após 5 segundos
+      setTimeout(() => {
+        statusMessage.className = 'status-message';
+      }, 5000);
+    }
+    
+    // Validação de formulário
+    function validateForm() {
+      const toValue = toInput.value.trim();
+      
+      // Limpar erros anteriores
+      toInput.classList.remove('error');
+      toError.classList.remove('show');
+      
+      // Validar campo obrigatório
+      if (!toValue) {
+        toInput.classList.add('error');
+        toError.textContent = 'Por favor, informe o e-mail do destinatário.';
+        toError.classList.add('show');
+        toInput.focus();
+        return false;
+      }
+      
+      // Validar formato do e-mail
+      if (!isValidEmail(toValue)) {
+        toInput.classList.add('error');
+        toError.textContent = 'E-mail inválido. Verifique o endereço.';
+        toError.classList.add('show');
+        toInput.focus();
+        return false;
+      }
+      
+      return true;
+    }
+    
+    // Abrir Gmail
+    function openGmail() {
+      if (!validateForm()) return;
+      
+      const to = toInput.value.trim();
+      const subject = subjectInput.value.trim();
+      const body = bodyInput.value.trim();
+      
+      // Monta a URL para abrir o Gmail compose
+      const params = new URLSearchParams();
+      params.set('view', 'cm');
+      params.set('fs', '1');
+      params.set('to', to);
+      if (subject) params.set('su', subject);
+      if (body) params.set('body', body);
+      
+      const gmailUrl = 'https://mail.google.com/mail/?' + params.toString();
+      
+      // Tenta abrir em nova aba
+      const newWindow = window.open(gmailUrl, '_blank');
+      
+      if (newWindow) {
+        showStatus('Abrindo Gmail em nova janela...', 'success');
+      } else {
+        showStatus('Não foi possível abrir o Gmail. Verifique se os pop-ups estão bloqueados.', 'error');
+      }
+    }
+    
+    // Abrir mailto
+    function openMailto() {
+      if (!validateForm()) return;
+      
+      const to = toInput.value.trim();
+      const subject = subjectInput.value.trim();
+      const body = bodyInput.value.trim();
+      
+      // Cria mailto com encoding
+      let mailto = 'mailto:' + encodeURIComponent(to);
+      const parts = [];
+      if (subject) parts.push('subject=' + encodeURIComponent(subject));
+      if (body) parts.push('body=' + encodeURIComponent(body));
+      
+      if (parts.length > 0) {
+        mailto += '?' + parts.join('&');
+      }
+      
+      // Abre o cliente padrão
+      window.location.href = mailto;
+      showStatus('Abrindo cliente de e-mail padrão...', 'success');
+    }
+    
+    // Event Listeners para formulário de e-mail
+    openGmailBtn.addEventListener('click', openGmail);
+    openMailtoBtn.addEventListener('click', openMailto);
+    
+    // Validação em tempo real
+    toInput.addEventListener('blur', function() {
+      if (this.value.trim()) {
+        if (!isValidEmail(this.value.trim())) {
+          this.classList.add('error');
+          toError.textContent = 'E-mail inválido. Verifique o endereço.';
+          toError.classList.add('show');
+        } else {
+          this.classList.remove('error');
+          toError.classList.remove('show');
+        }
+      }
+    });
+    
+    // Permitir envio com Enter no campo de e-mail
+    toInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        openGmail();
+      }
+    });
+
+    // === FALA O RELATÓRIO ===
+    function tocarFala() {
+      if (!relatorioTexto) {
+        showAlert("Nenhum relatório gerado.", "danger");
+        return;
+      }
+      
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        document.getElementById("btnPararFala").style.display = "none";
+        return;
+      }
+      
+      window.speechSynthesis.cancel();
+      utterance = new SpeechSynthesisUtterance(relatorioTexto);
       utterance.lang = "pt-BR";
-      utterance.rate = 1.4;
+      utterance.rate = 2.5;
+      utterance.pitch = 1.0;
+      
+      utterance.onstart = function() {
+        isSpeaking = true;
+        document.getElementById("btnPararFala").style.display = "inline-block";
+      };
+      
+      utterance.onend = function() {
+        isSpeaking = false;
+        document.getElementById("btnPararFala").style.display = "none";
+      };
+      
+      utterance.onerror = function() {
+        isSpeaking = false;
+        document.getElementById("btnPararFala").style.display = "none";
+        showAlert("Erro ao reproduzir áudio.", "danger");
+      };
+      
       window.speechSynthesis.speak(utterance);
     }
 
     // === PARAR FALA ===
-    function stopSpeaking() {
+    function pararFala() {
       window.speechSynthesis.cancel();
+      isSpeaking = false;
+      document.getElementById("btnPararFala").style.display = "none";
+    }
+
+    // === ALERTAS ===
+    function showAlert(message, type) {
+      // Remove alertas existentes
+      const existingAlerts = document.querySelectorAll('.alert');
+      existingAlerts.forEach(alert => alert.remove());
+      
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      
+      // Adiciona o alerta após o título
+      const title = document.querySelector('h2');
+      title.parentNode.insertBefore(alert, title.nextSibling);
+      
+      // Remove o alerta após 5 segundos
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.parentNode.removeChild(alert);
+        }
+      }, 5000);
+    }
+
+    // === TABS ===
+    function setActiveTab(tabId) {
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+
+      const id = tabId === "tab-tabela" ? "tabela" :
+        tabId === "tab-relatorio" ? "relatorio" :
+        tabId === "tab-graficos" ? "graficos" : "email";
+      document.getElementById(id).style.display = "block";
     }
 
     // === EVENTOS ===
     document.getElementById("btnGemini").addEventListener("click", sendDataToGemini);
     document.getElementById("btnRelatorio").addEventListener("click", generateReport);
-    document.getElementById("btnPararFala").addEventListener("click", stopSpeaking);
+    document.getElementById("btnTocarFala").addEventListener("click", tocarFala);
+    document.getElementById("btnPararFala").addEventListener("click", pararFala);
+    document.getElementById("tab-tabela").addEventListener("click", () => setActiveTab("tab-tabela"));
+    document.getElementById("tab-relatorio").addEventListener("click", () => setActiveTab("tab-relatorio"));
+    document.getElementById("tab-graficos").addEventListener("click", () => setActiveTab("tab-graficos"));
+    document.getElementById("tab-email").addEventListener("click", () => setActiveTab("tab-email"));
 
-    document.getElementById("tab-tabela").addEventListener("click", function () { setActiveTab("tab-tabela"); });
-    document.getElementById("tab-relatorio").addEventListener("click", function () { setActiveTab("tab-relatorio"); });
-    document.getElementById("tab-graficos").addEventListener("click", function () { setActiveTab("tab-graficos"); });
-
-    function setActiveTab(tabId) {
-      const tabs = document.querySelectorAll(".tab");
-      tabs.forEach(tab => tab.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-
-      const contents = document.querySelectorAll(".tab-content");
-      contents.forEach(content => content.style.display = "none");
-
-      let contentId;
-      if (tabId === "tab-tabela") contentId = "tabela";
-      else if (tabId === "tab-relatorio") contentId = "relatorio";
-      else if (tabId === "tab-graficos") contentId = "graficos";
-
-      const activeContent = document.getElementById(contentId);
-      if (activeContent) activeContent.style.display = "block";
-    }
-
-    // === INÍCIO ===
     window.onload = fetchData;
   </script>
 </body>
